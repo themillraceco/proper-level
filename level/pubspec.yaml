@@ -1,0 +1,50 @@
+name: level
+description: "Proper Level — Digital spirit level, clinometer, and measuring tool."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Sensors
+  sensors_plus: ^6.1.0
+
+  # State management
+  flutter_riverpod: ^2.6.1
+
+  # Persistence
+  shared_preferences: ^2.3.3
+
+  # Feedback
+  vibration: ^2.0.1
+  audioplayers: ^6.1.0
+
+  # Hardware
+  torch_light: ^1.0.0
+
+  # Screen
+  wakelock_plus: ^1.2.10
+
+  # Export / share
+  share_plus: ^10.1.4
+  screenshot: ^3.0.0
+
+  # Fonts
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/sounds/
+    - assets/icons/
+    - assets/help/

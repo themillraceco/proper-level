@@ -1,0 +1,141 @@
+PROPER LEVEL — HOW TO USE
+=========================
+Version 1.0  |  ca.themillrace.proper.level
+Open source — MIT Licence  |  github.com/millrace/proper-level
+
+──────────────────────────────────────────────
+LEVEL MODE
+──────────────────────────────────────────────
+The app detects how you're holding your phone and automatically
+switches between three level types. You don't need to pick one.
+
+  HORIZONTAL (phone landscape)
+  Hold your phone in landscape with one long edge resting on
+  the surface you want to check — shelf, countertop, door frame.
+  The bubble moves left and right. Center it for level.
+
+  VERTICAL (phone portrait)
+  Hold your phone in portrait with one edge against a wall,
+  door frame, or stud. The bubble indicates plumb (true vertical).
+
+  SURFACE 360° (phone flat)
+  Set your phone flat on any surface. The bullseye shows level
+  in all directions simultaneously. The dot should sit inside
+  the innermost ring for level.
+
+AUTO / LOCK
+  The mode label at the top shows which sub-mode is active.
+  Tap AUTO ▾ to manually lock to a specific mode — useful
+  when you're holding the phone in an unusual angle to reach
+  a tight spot.
+
+──────────────────────────────────────────────
+CLINOMETER
+──────────────────────────────────────────────
+Measures the angle of inclination of any surface.
+
+  Hold your phone with one edge flat against the surface
+  you want to measure. The readout shows the angle from
+  horizontal in degrees (or % grade — toggle with the
+  button at the bottom).
+
+TARGET ANGLE
+  Tap SET TARGET to enter a desired angle. The app will
+  show the delta and alert you (vibration + audio) when
+  you hit it. Useful for:
+  • Stair risers (common angles: 34°–38°)
+  • Roof pitches (common: 18°–34°)
+  • Bevel cuts (any custom angle)
+  • Drainage slopes (tile, gutter: 1–2%)
+
+──────────────────────────────────────────────
+FREEZE / HOLD
+──────────────────────────────────────────────
+Locks the current reading on screen so you can move the
+phone away and read the number at your leisure.
+
+  • Tap anywhere on the reading to toggle freeze
+  • Tap the HOLD button in the top toolbar
+  • Volume-up button also toggles freeze
+
+A "HOLD" badge appears on the reading when frozen.
+The mode sub-type is also locked while frozen.
+
+──────────────────────────────────────────────
+AUDIO & VIBRATION FEEDBACK
+──────────────────────────────────────────────
+The app guides you to level without needing to look at the screen.
+
+  AUDIO: A tone rises in pitch as you approach level, then
+  holds a steady note when level is achieved. Tempo increases
+  as you get closer. Useful when your hands are occupied.
+
+  VIBRATION: A pulse fires with increasing tempo as you approach
+  level. A double-buzz confirms when level is achieved.
+
+  Toggle both from the toolbar icons at the top of every screen.
+  Tapping the audio icon ( 🔊 ) or vibration icon ( 📳 ) toggles
+  each independently.
+
+──────────────────────────────────────────────
+FLASHLIGHT
+──────────────────────────────────────────────
+The flashlight icon ( 🔆 ) in the top toolbar toggles your
+phone's rear torch — for working in dark cabinets, under sinks,
+or in poorly lit spaces. It resets off every time the app launches.
+
+──────────────────────────────────────────────
+CALIBRATION
+──────────────────────────────────────────────
+Corrects for manufacturing variance in your phone's accelerometer.
+Most phones are accurate enough without calibration, but if your
+readings seem consistently off by a fixed amount, calibrate.
+
+  Settings → Calibrate Now
+
+STEP 1: Rest your phone flat on the most level surface available.
+        Tap CAPTURE STEP 1.
+
+STEP 2: Rotate the phone 180° end-for-end (spin it like a steering
+        wheel) on the same surface. Tap CAPTURE STEP 2.
+
+The two-step method cancels out any surface imperfection — you
+don't need a perfectly level surface to get a good calibration.
+
+RESET: Settings → Reset to factory removes the calibration offset
+       and returns to raw sensor readings.
+
+──────────────────────────────────────────────
+SETTINGS
+──────────────────────────────────────────────
+  Level threshold   How close to 0° triggers "LEVEL" state.
+                    Default: 0.5°. Tighter = more precise.
+
+  Sensitivity       How fast the bubble responds.
+                    Fast = snappy, Smooth = damped.
+                    Use Smooth in shaky environments.
+
+  Angle units       Degrees or % Grade (slope percentage).
+
+  Distance units    Metric or Imperial. Defaults to your locale.
+
+  Audio / Vibration Toggle feedback channels independently.
+
+──────────────────────────────────────────────
+TIPS FROM THE FIELD
+──────────────────────────────────────────────
+• For the most accurate reading, wait 1–2 seconds after
+  placing the phone before reading — the filter needs to settle.
+
+• On a very long surface (e.g., checking a 10-foot countertop),
+  take readings at both ends and the middle.
+
+• Freeze is your best friend when working alone — set it before
+  you pull the phone away so the reading stays visible.
+
+• The threshold ring on the bullseye (Surface mode) corresponds
+  to your current level threshold setting. Change it in Settings
+  if you need tighter or looser tolerances.
+
+• In Clinometer mode, hold the phone with the spine (long edge)
+  flat against the surface for the most accurate angle reading.
