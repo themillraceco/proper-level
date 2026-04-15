@@ -24,7 +24,7 @@ class AppSettings {
     this.audioEnabled = true,
     this.vibrationEnabled = true,
     this.levelThreshold = 0.5,
-    this.sensitivity = Sensitivity.medium,
+    this.sensitivity = Sensitivity.smooth,
     this.angleUnit = AngleUnit.degrees,
     this.distanceUnit = DistanceUnit.metric,
     this.flashlightOn = false,

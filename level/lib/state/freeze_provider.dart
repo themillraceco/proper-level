@@ -25,6 +25,17 @@ final _frozenReadingProvider = StateProvider<TiltReading?>((ref) => null);
 final tiltProvider = Provider<AsyncValue<TiltReading>>((ref) {
   final frozen = ref.watch(freezeProvider);
 
+  // Keep the frozen-reading cache up to date while not frozen.
+  // ref.listen fires as a side effect after build, avoiding Riverpod's
+  // "provider modifying another provider during init" assertion.
+  ref.listen(rawTiltProvider, (_, next) {
+    if (!frozen) {
+      next.whenData((reading) {
+        ref.read(_frozenReadingProvider.notifier).state = reading;
+      });
+    }
+  });
+
   if (frozen) {
     final snapshot = ref.read(_frozenReadingProvider);
     if (snapshot != null) {
@@ -33,14 +44,5 @@ final tiltProvider = Provider<AsyncValue<TiltReading>>((ref) {
     // Freeze was triggered before first reading — fall through to live.
   }
 
-  final live = ref.watch(rawTiltProvider);
-
-  // Keep the frozen-reading cache up to date while not frozen.
-  live.whenData((reading) {
-    if (!frozen) {
-      ref.read(_frozenReadingProvider.notifier).state = reading;
-    }
-  });
-
-  return live;
+  return ref.watch(rawTiltProvider);
 });

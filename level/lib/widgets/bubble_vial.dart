@@ -19,29 +19,36 @@ class BubbleVial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return horizontal
-        ? SizedBox(
-            width: double.infinity,
-            height: 72,
-            child: CustomPaint(
-              painter: _VialPainter(
-                angle: angle,
-                threshold: threshold,
-                horizontal: true,
-              ),
-            ),
-          )
-        : SizedBox(
-            width: 72,
-            height: double.infinity,
-            child: CustomPaint(
-              painter: _VialPainter(
-                angle: angle,
-                threshold: threshold,
-                horizontal: false,
-              ),
-            ),
-          );
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: angle, end: angle),
+      duration: const Duration(milliseconds: 80),
+      curve: Curves.easeOutCubic,
+      builder: (context, animatedAngle, _) {
+        return horizontal
+            ? SizedBox(
+                width: double.infinity,
+                height: 72,
+                child: CustomPaint(
+                  painter: _VialPainter(
+                    angle: animatedAngle,
+                    threshold: threshold,
+                    horizontal: true,
+                  ),
+                ),
+              )
+            : SizedBox(
+                width: 72,
+                height: double.infinity,
+                child: CustomPaint(
+                  painter: _VialPainter(
+                    angle: animatedAngle,
+                    threshold: threshold,
+                    horizontal: false,
+                  ),
+                ),
+              );
+      },
+    );
   }
 }
 

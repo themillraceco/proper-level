@@ -16,16 +16,16 @@ class TiltReading {
 
   // ── Horizontal level (phone landscape, long edge on a surface) ──────────
   // 0° = perfectly level. Range ±90°.
-  double get horizontalAngle => math.atan2(y, x) * 180 / math.pi;
+  double get horizontalAngle => -math.atan2(y, x) * 180 / math.pi;
 
   // ── Vertical level (phone portrait, edge against a wall) ────────────────
   // 0° = perfectly plumb. Range ±90°.
-  double get verticalAngle => math.atan2(x, y) * 180 / math.pi;
+  double get verticalAngle => -math.atan2(x, y) * 180 / math.pi;
 
   // ── Surface level (phone flat on a surface) ─────────────────────────────
   // Both 0° = flat.
   double get surfacePitch => math.atan2(y, z) * 180 / math.pi;
-  double get surfaceRoll => math.atan2(x, z) * 180 / math.pi;
+  double get surfaceRoll => -math.atan2(x, z) * 180 / math.pi;
 
   // ── Clinometer (absolute angle of inclination from horizontal) ───────────
   // 0° = flat, 90° = vertical. Always positive.

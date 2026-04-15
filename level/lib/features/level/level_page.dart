@@ -41,6 +41,7 @@ class _LevelPageState extends ConsumerState<LevelPage>
     with WidgetsBindingObserver {
   late AudioFeedbackController _audio;
   late LevelFeedbackController _haptic;
+  TiltReading _lastStableTilt = TiltReading.zero;
 
   @override
   void initState() {
@@ -77,13 +78,26 @@ class _LevelPageState extends ConsumerState<LevelPage>
 
     return OrientationBuilder(
       builder: (context, orientation) {
-        final tilt = tiltAsync.value ?? TiltReading.zero;
+        final rawTilt = tiltAsync.value ?? TiltReading.zero;
+
+        // Smoothly handle vibration noise. Instead of a hard freeze which causes
+        // stuttering, we apply a heavy filter (90% history) during the haptic
+        // window. This keeps the bubble moving but ignores motor jitter.
+        if (_haptic.isInHapticWindow()) {
+          _lastStableTilt = _lastStableTilt.scale(0.9) + rawTilt.scale(0.1);
+        } else {
+          // Outside haptic window, we still want a tiny bit of smoothing to
+          // bridge the transition, so we use a 50/50 blend for one frame.
+          _lastStableTilt = _lastStableTilt.scale(0.5) + rawTilt.scale(0.5);
+        }
+        final tilt = _lastStableTilt;
+
         final subMode =
             locked ?? _detectSubMode(tilt, orientation);
 
         // Trigger audio & haptic feedback
         if (settings != null) {
-          final angle = _relevantAngle(tilt, subMode);
+          final angle = _relevantAngle(tilt, subMode, orientation);
           final threshold = settings.levelThreshold;
           _audio.update(absAngle: angle.abs(), threshold: threshold);
 
@@ -111,10 +125,14 @@ class _LevelPageState extends ConsumerState<LevelPage>
     );
   }
 
-  double _relevantAngle(TiltReading tilt, LevelSubMode mode) {
+  double _relevantAngle(TiltReading tilt, LevelSubMode mode, Orientation orientation) {
     return switch (mode) {
-      LevelSubMode.horizontal => tilt.horizontalAngle,
-      LevelSubMode.vertical => tilt.verticalAngle,
+      LevelSubMode.horizontal => (orientation == Orientation.landscape)
+          ? tilt.horizontalAngle
+          : tilt.verticalAngle, // If user forced Horizontal but phone is Portrait
+      LevelSubMode.vertical => (orientation == Orientation.portrait)
+          ? tilt.verticalAngle
+          : tilt.horizontalAngle, // If user forced Vertical but phone is Landscape
       LevelSubMode.surface =>
         // Worst-case axis for surface level
         tilt.surfacePitch.abs() > tilt.surfaceRoll.abs()
@@ -161,15 +179,25 @@ class _LevelScaffold extends ConsumerWidget {
                       size: 18, color: AppColors.textMuted),
                 ),
                 const SizedBox(width: 8),
-                // Mode label
-                Text(
-                  _modeLabel(subMode),
-                  style: AppTextStyles.sectionHeader(),
+                // Mode label + Pill (flexible to avoid overflow)
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          _modeLabel(subMode),
+                          style: AppTextStyles.sectionHeader(),
+                        ),
+                        const SizedBox(width: 8),
+                        // AUTO / LOCKED pill
+                        _SubModePill(locked: locked),
+                      ],
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                // AUTO / LOCKED pill
-                _SubModePill(locked: locked),
-                const Spacer(),
+                const SizedBox(width: 4),
                 ProperToolbar(onScreenshot: () => _screenshot(context)),
               ],
             ),
@@ -185,7 +213,8 @@ class _LevelScaffold extends ConsumerWidget {
                   tilt: tilt,
                   threshold: threshold,
                   unit: unit,
-                  frozen: frozen),
+                  frozen: frozen,
+                  orientation: MediaQuery.of(context).orientation),
             ),
           ),
         ],
@@ -200,6 +229,7 @@ class _LevelScaffold extends ConsumerWidget {
     required double threshold,
     required AngleUnit unit,
     required bool frozen,
+    required Orientation orientation,
   }) {
     switch (subMode) {
       case LevelSubMode.horizontal:
@@ -209,6 +239,7 @@ class _LevelScaffold extends ConsumerWidget {
           threshold: threshold,
           unit: unit,
           frozen: frozen,
+          orientation: orientation,
         );
       case LevelSubMode.vertical:
         return _VerticalLevel(
@@ -217,6 +248,7 @@ class _LevelScaffold extends ConsumerWidget {
           threshold: threshold,
           unit: unit,
           frozen: frozen,
+          orientation: orientation,
         );
       case LevelSubMode.surface:
         return _SurfaceLevel(
@@ -382,6 +414,7 @@ class _HorizontalLevel extends StatelessWidget {
   final double threshold;
   final AngleUnit unit;
   final bool frozen;
+  final Orientation orientation;
 
   const _HorizontalLevel({
     super.key,
@@ -389,11 +422,14 @@ class _HorizontalLevel extends StatelessWidget {
     required this.threshold,
     required this.unit,
     required this.frozen,
+    required this.orientation,
   });
 
   @override
   Widget build(BuildContext context) {
-    final angle = tilt.horizontalAngle;
+    final angle = (orientation == Orientation.landscape)
+        ? tilt.horizontalAngle
+        : tilt.verticalAngle;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -436,6 +472,7 @@ class _VerticalLevel extends StatelessWidget {
   final double threshold;
   final AngleUnit unit;
   final bool frozen;
+  final Orientation orientation;
 
   const _VerticalLevel({
     super.key,
@@ -443,11 +480,14 @@ class _VerticalLevel extends StatelessWidget {
     required this.threshold,
     required this.unit,
     required this.frozen,
+    required this.orientation,
   });
 
   @override
   Widget build(BuildContext context) {
-    final angle = tilt.verticalAngle;
+    final angle = (orientation == Orientation.portrait)
+        ? tilt.verticalAngle
+        : tilt.horizontalAngle;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -466,13 +506,19 @@ class _VerticalLevel extends StatelessWidget {
             Container(width: 1.5, height: 20, color: AppColors.border),
           ],
         ),
-        const SizedBox(width: 48),
-        _FreezeableReadout(
-          frozen: frozen,
-          child: AngleReadout(
-            angle: angle,
-            threshold: threshold,
-            unit: unit,
+        const SizedBox(width: 40),
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: _FreezeableReadout(
+              frozen: frozen,
+              child: AngleReadout(
+                angle: angle,
+                threshold: threshold,
+                unit: unit,
+              ),
+            ),
           ),
         ),
       ],
@@ -501,15 +547,17 @@ class _SurfaceLevel extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 48),
-          child: Bullseye(
-            pitchAngle: tilt.surfacePitch,
-            rollAngle: tilt.surfaceRoll,
-            threshold: threshold,
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48),
+            child: Bullseye(
+              pitchAngle: tilt.surfacePitch,
+              rollAngle: tilt.surfaceRoll,
+              threshold: threshold,
+            ),
           ),
         ),
-        const SizedBox(height: 40),
+        const SizedBox(height: 24),
         _FreezeableReadout(
           frozen: frozen,
           child: DualAngleReadout(

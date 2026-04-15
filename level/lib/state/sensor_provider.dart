@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/sensors.dart';
 import '../core/calibration.dart';
+import 'settings_provider.dart';
 
 // Loads calibration data from SharedPreferences once.
 final calibrationProvider =
@@ -22,17 +23,17 @@ class CalibrationNotifier extends AsyncNotifier<CalibrationData> {
   }
 }
 
-// Sensitivity provider — kept separate so it can be updated
-// without rebuilding the entire sensor stream.
-final sensitivityProvider = StateProvider<double>((ref) => 0.45);
-
-// Raw calibrated tilt stream. Rebuilds when calibration changes.
+// Raw calibrated tilt stream. Rebuilds only when calibration or sensitivity changes.
 // Consumer widgets should watch [tiltProvider] which handles freeze.
 final rawTiltProvider = StreamProvider<TiltReading>((ref) {
   final calibration = ref.watch(calibrationProvider).value ?? CalibrationData.zero;
-  final alpha = ref.watch(sensitivityProvider);
+  // Read sensitivity directly from persisted settings so the correct value is
+  // applied after a restart, not the old hardcoded 0.45 default.
+  final sensitivity = ref.watch(
+    settingsProvider.select((s) => s.value?.sensitivity ?? Sensitivity.smooth),
+  );
 
-  final filter = LowPassFilter(alpha: alpha);
+  final filter = LowPassFilter(alpha: sensitivity.alpha);
 
   return rawAccelerometerStream().map((event) {
     final filtered = filter.update(event);

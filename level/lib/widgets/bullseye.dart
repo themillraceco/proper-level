@@ -24,13 +24,23 @@ class Bullseye extends StatelessWidget {
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1,
-      child: CustomPaint(
-        painter: _BullseyePainter(
-          pitchAngle: pitchAngle,
-          rollAngle: rollAngle,
-          threshold: threshold,
-          isLevel: _isLevel,
+      child: TweenAnimationBuilder<Offset>(
+        tween: Tween<Offset>(
+          begin: Offset(rollAngle, pitchAngle),
+          end: Offset(rollAngle, pitchAngle),
         ),
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeOutCubic,
+        builder: (context, animatedOffset, _) {
+          return CustomPaint(
+            painter: _BullseyePainter(
+              pitchAngle: animatedOffset.dy,
+              rollAngle: animatedOffset.dx,
+              threshold: threshold,
+              isLevel: _isLevel,
+            ),
+          );
+        },
       ),
     );
   }
@@ -115,8 +125,9 @@ class _BullseyePainter extends CustomPainter {
     // Map angles to pixel offset within the outer ring.
     // 5° of tilt = reaches the outer ring edge.
     final maxOffset = outerRadius * 0.9;
-    final rawX = (rollAngle / 5.0) * maxOffset;
-    final rawY = (pitchAngle / 5.0) * maxOffset;
+    // Invert both axes so the bubble moves toward the "high" side
+    final rawX = -(rollAngle / 5.0) * maxOffset;
+    final rawY = -(pitchAngle / 5.0) * maxOffset;
 
     // Clamp to circle boundary
     final dist = math.sqrt(rawX * rawX + rawY * rawY);

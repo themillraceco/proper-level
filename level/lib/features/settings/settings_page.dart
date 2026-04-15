@@ -38,13 +38,12 @@ class SettingsPage extends ConsumerWidget {
             ),
             _SegmentTile<Sensitivity>(
               title: 'Sensitivity',
+              subtitle: 'Smooth reduces jitter; Fast responds quicker to movement',
               value: settings.sensitivity,
               options: Sensitivity.values,
               labelOf: (s) => s.label,
-              onChanged: (v) {
-                ref.read(settingsProvider.notifier).setSensitivity(v);
-                ref.read(sensitivityProvider.notifier).state = v.alpha;
-              },
+              onChanged: (v) =>
+                  ref.read(settingsProvider.notifier).setSensitivity(v),
             ),
 
             const _Divider(),
@@ -308,6 +307,7 @@ class _SliderTile extends StatelessWidget {
 
 class _SegmentTile<T> extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final T value;
   final List<T> options;
   final String Function(T) labelOf;
@@ -315,6 +315,7 @@ class _SegmentTile<T> extends StatelessWidget {
 
   const _SegmentTile({
     required this.title,
+    this.subtitle,
     required this.value,
     required this.options,
     required this.labelOf,
@@ -326,9 +327,17 @@ class _SegmentTile<T> extends StatelessWidget {
         title: Text(title,
             style:
                 AppTextStyles.label(color: AppColors.textPrimary)),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: SegmentedButton<T>(
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (subtitle != null) ...[
+              const SizedBox(height: 4),
+              Text(subtitle!,
+                  style: AppTextStyles.label(
+                      fontSize: 12, color: AppColors.textMuted)),
+            ],
+            const SizedBox(height: 8),
+            SegmentedButton<T>(
             segments: options
                 .map((o) => ButtonSegment<T>(
                       value: o,
@@ -345,6 +354,7 @@ class _SegmentTile<T> extends StatelessWidget {
               foregroundColor: AppColors.textSecondary,
             ),
           ),
+          ],
         ),
       );
 }
